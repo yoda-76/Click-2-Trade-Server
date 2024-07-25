@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String          @id @default(cuid())
+  name         String
+  email        String          @unique
+  password     String
+  total_pnl    Int             @default(0)
+  access_token String?
+  ph_number    Int?
+  photo        String?
+  account      MasterAccount[]
+}
+
+model MasterAccount {
+  id                      String         @id @default(cuid())
+  user_id                 String
+  broker                  Broker
+  broker_id               String         @unique
+  name_tag                String
+  key                     String
+  secret                  String
+  access_token            String?
+  last_token_generated_at DateTime?
+  added_at                DateTime       @default(now())
+  pnl                     Int            @default(0)
+  mtm_target              Int            @default(100)
+  mtm_target_toggle       Boolean        @default(false)
+  mtm_loss                Int            @default(40)
+  mtm_loss_toggle         Boolean        @default(false)
+  trailing_sl_points      Int            @default(1)
+  tsl                     Int?
+  user                    User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  child_account           ChildAccount[]
+  prefrences              Prefrences[]
+}
+
+model ChildAccount {
+  id                      String        @id @default(cuid())
+  master_id               String
+  broker                  Broker
+  broker_id               String        @unique
+  name_tag                String
+  key                     String
+  secret                  String
+  access_token            String?
+  last_token_generated_at DateTime?
+  multiplier              Int           @default(1)
+  active                  Boolean       @default(true)
+  added_at                DateTime      @default(now())
+  pnl                     Int           @default(0)
+  mtm_target              Int           @default(100)
+  mtm_target_toggle       Boolean       @default(false)
+  mtm_loss                Int           @default(40)
+  mtm_loss_toggle         Boolean       @default(false)
+  master                  MasterAccount @relation(fields: [master_id], references: [id], onDelete: Cascade)
+  prefrences              Prefrences[]
+}
+
+model Prefrences {
+  id                String  @id @default(cuid())
+  master_account_id String? @unique
+  child_account_id  String? @unique
+
+  master_account MasterAccount? @relation(fields: [master_account_id], references: [id], onDelete: Cascade)
+  child_account  ChildAccount?  @relation(fields: [child_account_id], references: [id], onDelete: Cascade)
+}
+
+enum Broker {
+  UPSTOCKS
+  DHAN
+  ANGEL
+  ESPRESSO
+}
+
+enum TransactionType {
+  BUY
+  SELL
+}
+
+enum OrderStatus {
+  COMPLETED
+  REJECTED
+  CANCELLED
+  PENDING
+}
+
+enum AccountType {
+  UNASSIGNED
+  MASTER
+  CHILD
+  ADMIN
+}
