@@ -4,8 +4,9 @@ import { Request, Response } from "express";
 
 export const upstoxAuth = async (req: Request, res: Response) => {
   const authcode = req.query.code as string;
-  const email = req.query.state as string;
-  const user = await GetAccessToken(email, authcode);
+  const id = req.query.state as string;
+  console.log(authcode, id);
+  const user = await GetAccessToken(id, authcode);
   if (user) {
     console.log("data added");
     res.status(201).json({

@@ -47,67 +47,79 @@ function extractId(input: string): {
 export const GetAccessToken = async (
   id: string,
   authcode: string
-): Promise<MasterAccount | ChildAccount |void> => {
-  const currentdate = new Date();
-  const acc = extractId(id);
-  let userData: MasterAccount | ChildAccount;
-  if (acc.type === "CHILD") {
-    userData = await prisma.childAccount.findUnique({ where: { id: acc.id } });
-  } else if (acc.type === "MASTER") {
-    userData = await prisma.masterAccount.findUnique({ where: { id: acc.id } });
-  } else {
-    throw new ApiError(
-      500,
-      "error authorizing with upstox",
-      ".Controllers/Authorization: GetAccessToken"
-    );
-  }
-
-  const response = await axios.post(
-    "https://api.upstox.com/v2/login/authorization/token",
-    new URLSearchParams({
-      code: authcode,
-      client_id: userData.key,
-      client_secret: userData.secret,
-      redirect_uri: "http://localhost:3000/auth",
-      grant_type: "authorization_code",
-    }),
-    {
-      headers: {
-        Accept: "application/json",
-        "Api-Version": "2.0",
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    }
-    );
-
-  if (response) {
-    // console.log("Original Doc: ", resp);
-    const access_token: string = response.data.access_token;
-    let accountData: MasterAccount | ChildAccount;
-    if (acc.type === "MASTER") {
-      accountData = await prisma.masterAccount.update({
-        where: { id:acc.id },
-        data: {
-          access_token,
-          last_token_generated_at: currentdate.toISOString(),
-        },
+): Promise<MasterAccount | ChildAccount | void> => {
+  try {
+    const currentdate = new Date();
+    const acc = extractId(id);
+    let userData: MasterAccount | ChildAccount;
+    if (acc.type === "CHILD") {
+      userData = await prisma.childAccount.findUnique({
+        where: { id: acc.id },
+      });
+    } else if (acc.type === "MASTER") {
+      userData = await prisma.masterAccount.findUnique({
+        where: { id: acc.id },
       });
     } else {
-      accountData = await prisma.childAccount.update({
-        where: { id: acc.id },
-        data: {
-          access_token,
-          last_token_generated_at: currentdate.toISOString(),
-        },
-      });
+      throw new ApiError(
+        500,
+        "error authorizing with upstox",
+        ".Controllers/Authorization: GetAccessToken"
+      );
     }
-    return accountData
-  } else {
-    throw new ApiError(
-      500,
-      "error authorizing with upstox",
-      ".Controllers/Authorization: GetAccessToken"
+    console.log(userData);
+    console.log({
+      code: authcode,
+      client_id: userData.key,
+      client_secret: userData.secret});
+    const response = await axios.post(
+      "https://api.upstox.com/v2/login/authorization/token",
+      new URLSearchParams({
+        code: authcode,
+        client_id: userData.key,
+        client_secret: userData.secret,
+        redirect_uri: "http://localhost:3000/auth",
+        grant_type: "authorization_code",
+      }),
+      {
+        headers: {
+          Accept: "application/json",
+          "Api-Version": "2.0",
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
     );
+    console.log(response?.data);
+    if (response) {
+      // console.log("Original Doc: ", resp);
+      const access_token: string = response.data.access_token;
+      let accountData: MasterAccount | ChildAccount;
+      if (acc.type === "MASTER") {
+        accountData = await prisma.masterAccount.update({
+          where: { id: acc.id },
+          data: {
+            access_token,
+            last_token_generated_at: currentdate.toISOString(),
+          },
+        });
+      } else {
+        accountData = await prisma.childAccount.update({
+          where: { id: acc.id },
+          data: {
+            access_token,
+            last_token_generated_at: currentdate.toISOString(),
+          },
+        });
+      }
+      return accountData;
+    } else {
+      throw new ApiError(
+        500,
+        "error authorizing with upstox",
+        ".Controllers/Authorization: GetAccessToken"
+      );
+    }
+  } catch (error) {
+    console.log(error);
   }
 };

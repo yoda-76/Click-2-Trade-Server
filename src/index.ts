@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 import { Server } from "socket.io";
 import { createServer } from "node:http";
 
-const socketAccessToken = "eyJ0eXAiOiJKV1QiLCJrZXlfaWQiOiJza192MS4wIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiJLUTc5NDMiLCJqdGkiOiI2NmExYWU0ODEzMWE4ZTIwMzU2MmI3YTciLCJpc011bHRpQ2xpZW50IjpmYWxzZSwiaWF0IjoxNzIxODcxOTQ0LCJpc3MiOiJ1ZGFwaS1nYXRld2F5LXNlcnZpY2UiLCJleHAiOjE3MjE5NDQ4MDB9.UcMUPfLyuTeikQBi4yEhuq2QYKbRZS0KbIb5MIZiS88"
+const socketAccessToken = "eyJ0eXAiOiJKV1QiLCJrZXlfaWQiOiJza192MS4wIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiJLTDI3NzAiLCJqdGkiOiI2NmI1NWQ3MzA1ZmRjMDYyMTUzZjk4YTAiLCJpc011bHRpQ2xpZW50IjpmYWxzZSwiaWF0IjoxNzIzMTYxOTcxLCJpc3MiOiJ1ZGFwaS1nYXRld2F5LXNlcnZpY2UiLCJleHAiOjE3MjMyNDA4MDB9.L7jpQavrf2sI4vvWEvgj2dLyn_HDiIetlzJl_muhAr8"
 
 // import deserializeUser from "./middleware/deserializeUser";
 

@@ -2,6 +2,8 @@ import { prisma } from "../lib/db";
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../lib/generate-jwt";
+import axios from "axios";
+
 
 export const register = async (req: Request, res: Response) => {
   const {
@@ -85,16 +87,6 @@ export const userDetails = async (req: Request, res: Response) => {
         user_id: user.id,
       },
     });
-    console.log(accounts);
-    // broker: 'DHAN',
-    // broker_id: 'qq',
-    // name_tag: 'qq',
-    // key: 'qq',
-    // secret: 'qq',
-    // access_token: null,
-    // last_token_generated_at: null,
-    // added_at: 2024-07-08T13:25:27.605Z,
-    // pnl: 0,
     const updatedAccounts = accounts.map(a=>{
       return {
         id:a.id,
@@ -121,3 +113,21 @@ export const userDetails = async (req: Request, res: Response) => {
 };
 
 
+export const getFunds = async (req: Request, res: Response) => {
+  const account_id: string = req.body.account_id;
+  try {
+    const account = await prisma.masterAccount.findUnique({ where: { id: account_id } });
+    const access_token= account.access_token;
+    const url =
+      "https://api.upstox.com/v2/user/get-funds-and-margin";
+
+    const headers = {
+      Accept: "application/json",
+      Authorization: `Bearer ${access_token}`,
+    };
+    const resp = await axios.get(url, { headers });
+    return res.json(resp.data.data)
+  } catch (error) {
+    
+  }
+}
