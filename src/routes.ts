@@ -6,6 +6,7 @@ import { addAccount, getAccountDetails, getChildAccounts, toggleChildAccount, up
 import { getStructuredOptionsData } from "./controller/misc.controller";
 import { cancelAllOrders, placeOrder } from "./controller/order.controller";
 import { getOrders } from "./controller/orderbook.controller";
+import { getPositions } from "./controller/positions.controller";
 
 
 
@@ -47,6 +48,7 @@ function routes(app: Express) {
   app.post("/api/place-order", placeOrder);
   app.post("/api/cancel-all-order", cancelAllOrders);
 
+  app.post("/api/get-positions", getPositions)
 
 }
 

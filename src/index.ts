@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 import { Server } from "socket.io";
 import { createServer } from "node:http";
 
-const socketAccessToken = "eyJ0eXAiOiJKV1QiLCJrZXlfaWQiOiJza192MS4wIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiJLTDI3NzAiLCJqdGkiOiI2NmI1NWQ3MzA1ZmRjMDYyMTUzZjk4YTAiLCJpc011bHRpQ2xpZW50IjpmYWxzZSwiaWF0IjoxNzIzMTYxOTcxLCJpc3MiOiJ1ZGFwaS1nYXRld2F5LXNlcnZpY2UiLCJleHAiOjE3MjMyNDA4MDB9.L7jpQavrf2sI4vvWEvgj2dLyn_HDiIetlzJl_muhAr8"
+const socketAccessToken = "eyJ0eXAiOiJKV1QiLCJrZXlfaWQiOiJza192MS4wIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiJLTDI3NzAiLCJqdGkiOiI2NmJmMGE3YzAyYjUzYjNiMDRiYjVmMTAiLCJpc011bHRpQ2xpZW50IjpmYWxzZSwiaWF0IjoxNzIzNzk2MDkyLCJpc3MiOiJ1ZGFwaS1nYXRld2F5LXNlcnZpY2UiLCJleHAiOjE3MjM4NDU2MDB9.919exyAfXWIYKmcPsqCvPqTPM5XJjdrAHIlLWmlFTqA"
 
 // import deserializeUser from "./middleware/deserializeUser";
 
@@ -135,7 +135,7 @@ const connectWebSocket = async (io, wsUrl) => {
     ws.on("message", (data) => {
       const parsedData = JSON.stringify(decodeProfobuf(data)); // Decode the protobuf message on receiving it
       const parsedObject = JSON.parse(parsedData);
-      // console.log("fetched", parsedData);
+      console.log(parsedData);
       io.emit("market-data", parsedObject);
     });
 

@@ -4,6 +4,8 @@ const fs = require('fs');
 const path = require('path');
 const zlib = require('zlib');
 const csvtojson = require('csvtojson');
+const  equitySymbols =  require('./equity-tokens');
+console.log(equitySymbols);
 
 const url = 'https://assets.upstox.com/market-quote/instruments/exchange/complete.csv.gz';
 
@@ -23,7 +25,11 @@ const jsonFilePath4 = path.join(folderPath, 'all_instrument_data.json');
 const jsonFilePath5 = path.join(folderPath, 'indexData.json');
 
 
-
+function extractBaseInstrumentSymbol(str) {
+  // Regular expression to match the part before the first numerical value
+  const match = str.match(/^[A-Za-z]+/);
+  return match ? match[0] : null;
+}
 
 
 
@@ -73,7 +79,7 @@ axios({
       "NIFTY": {}
     }
 
-    jsonArray=jsonArray.filter(i=>{
+    filteredJsonArray=jsonArray.filter(i=>{
       // if(i.name=="Nifty 50"){
       //   structuredData.INDEX.NIFTY=i
       // }
@@ -88,13 +94,14 @@ axios({
       }else if(i.name==="Nifty Fin Service"){
         structuredData.INDEX.FINNIFTY=i
       }
-      if(i.instrument_type=="OPTIDX" && ["NIFTY","BANKNIFTY","FINNIFTY"].some(sub=>i.tradingsymbol.startsWith(sub))) return i
+      if(i.instrument_type=="OPTIDX" || i.instrument_type=="OPTSTK") return i
   })
-    jsonArray.map(i=>{
+  var otherTokens = []
+  filteredJsonArray.map(i=>{
       // console.log(i)
       if(i.option_type==="CE"){
         const s1=i.tradingsymbol.substring(0,i.tradingsymbol.length-2)
-        jsonArray.map(j=>{
+        filteredJsonArray.map(j=>{
           if(j.option_type==="PE"){
             const s2=j.tradingsymbol.substring(0,j.tradingsymbol.length-2)
             if(s1===s2){
@@ -114,6 +121,28 @@ axios({
                 PE:j
               }
           }
+          const baseInstrument = extractBaseInstrumentSymbol(i.tradingsymbol)
+          if(equitySymbols.includes(baseInstrument)){
+            if(structuredData[baseInstrument]){
+              structuredData[baseInstrument][`${i.expiry} : ${i.strike}`]={
+                CE:i,
+                PE:j
+              } 
+              otherTokens.push(i.instrument_key)
+              otherTokens.push(j.instrument_key)
+
+            }else{
+              structuredData[baseInstrument]={}
+              structuredData[baseInstrument][`${i.expiry} : ${i.strike}`]={
+                CE:i,
+                PE:j
+              }
+              otherTokens.push(i.instrument_key)
+              otherTokens.push(j.instrument_key)
+              console.log(baseInstrument)
+            }
+          }
+          
           }
         }
       })
@@ -124,16 +153,19 @@ axios({
 
 
     
-    const jsonArray2=jsonArray.map(i=>{
+    var jsonArray2=filteredJsonArray.map(i=>{
         return i.instrument_key
     })
     for(const key in structuredData.INDEX){
+      console.log(structuredData.INDEX[key].instrument_key);
       jsonArray2.unshift(structuredData.INDEX[key].instrument_key);
     }
+    // jsonArray2.push(...otherTokens)
+    jsonArray2=[...equitySymbols, ...jsonArray2]
     fs.writeFileSync(jsonFilePath2, JSON.stringify(jsonArray2, null, 2));
 
 
-    fs.writeFileSync(jsonFilePath, JSON.stringify(jsonArray, null, 2));
+    fs.writeFileSync(jsonFilePath, JSON.stringify(filteredJsonArray, null, 2));
     console.log('File downloaded, decompressed, CSV converted to JSON, and saved successfully.');
   })
   .catch((error) => {
