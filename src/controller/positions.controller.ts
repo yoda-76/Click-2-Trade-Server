@@ -18,7 +18,7 @@ export const getPositions = async (req: Request, res: Response) => {
         res.status(401).send("Invalid account type");
     }
 
-    
+    console.log(user);
     const accessToken=user.access_token;
   let config = {
     method: 'get',
@@ -30,7 +30,19 @@ export const getPositions = async (req: Request, res: Response) => {
       'Authorization': `Bearer ${accessToken}`,
     }
   };
+  let holdingsConfig = {
+    method: 'get',
+    maxBodyLength: Infinity,
+    url: 'https://api.upstox.com/v2/portfolio/long-term-holdings',
+    headers: { 
+      'Accept': 'application/json',
+      'Api-Version': '2.0',
+      'Authorization': `Bearer ${accessToken}`,
+    }
+  };
   const response=await axios(config)
+  const holdingsResponse=await axios(holdingsConfig)
+  console.log(response.data.data, holdingsResponse.data.data);
   res.send(response.data.data);
   } catch (error) {
     console.log(error);

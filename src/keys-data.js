@@ -6,7 +6,7 @@ const zlib = require('zlib');
 const csvtojson = require('csvtojson');
 const  equitySymbols =  require('./equity-tokens');
 console.log(equitySymbols);
-
+const equityKeys= []
 const url = 'https://assets.upstox.com/market-quote/instruments/exchange/complete.csv.gz';
 
 // Create the 'token_data' folder if it doesn't exist
@@ -95,6 +95,11 @@ axios({
         structuredData.INDEX.FINNIFTY=i
       }
       if(i.instrument_type=="OPTIDX" || i.instrument_type=="OPTSTK") return i
+      else if(i.instrument_type=="EQUITY" && equitySymbols.includes(i.tradingsymbol)) {
+        equityKeys.push(i.instrument_key)
+        if(!structuredData.EQUITY) structuredData.EQUITY = {}
+        structuredData.EQUITY[i.tradingsymbol]=i
+      }
   })
   var otherTokens = []
   filteredJsonArray.map(i=>{
@@ -161,7 +166,7 @@ axios({
       jsonArray2.unshift(structuredData.INDEX[key].instrument_key);
     }
     // jsonArray2.push(...otherTokens)
-    jsonArray2=[...equitySymbols, ...jsonArray2]
+    jsonArray2=[...equityKeys, ...jsonArray2]
     fs.writeFileSync(jsonFilePath2, JSON.stringify(jsonArray2, null, 2));
 
 
