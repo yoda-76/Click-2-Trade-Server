@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon src/index.ts",
     "migrate": "prisma migrate dev",
-    "build": "tsc",
+    "build": "npm i && npx prisma generate && tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
