@@ -13,7 +13,7 @@ import { squareoffAllPositions } from "./controller/squareoff.controller";
 
 function routes(app: Express) {
   //health check
-  app.get("/api/test", async (req: Request, res: Response) => {
+  app.get("/api/test", async (req: Request, res: Response) => { 
     res.send("Server is healthy");
   });
   

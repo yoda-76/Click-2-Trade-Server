@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 import { Server } from "socket.io";
 import { createServer } from "node:http";
 
-const socketAccessToken = "eyJ0eXAiOiJKV1QiLCJrZXlfaWQiOiJza192MS4wIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiJLTDI3NzAiLCJqdGkiOiI2NmNlYjc3YjFkOTEzODEzMTQ1YzQ3YzAiLCJpc011bHRpQ2xpZW50IjpmYWxzZSwiaWF0IjoxNzI0ODIzNDE5LCJpc3MiOiJ1ZGFwaS1nYXRld2F5LXNlcnZpY2UiLCJleHAiOjE3MjQ4ODI0MDB9.s-8-7ks0FW3RfV8Wzv_gOWPxOxh4mcDjsMMwYShKEDI"
+const socketAccessToken = process.env.SOCKET_ACCESS_TOKEN
 
 // import deserializeUser from "./middleware/deserializeUser";
 
