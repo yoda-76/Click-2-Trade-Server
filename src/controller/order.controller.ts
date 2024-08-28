@@ -2,7 +2,7 @@ import { Broker } from "@prisma/client";
 import { Express, Request, Response } from "express";
 import axios from "axios";
 
-function sliceOrderQuantity(orderQty, index) {
+export function sliceOrderQuantity(orderQty, index) {
   const freeze_qty = {
     NIFTY: 1800,
     BANKNIFTY: 900,
@@ -24,7 +24,7 @@ function sliceOrderQuantity(orderQty, index) {
   return slicedQuantity;
 }
 
-const coustomPlaceOrder = async (
+export const coustomPlaceOrder = async (
   index,
   order_type,
   product,
@@ -39,7 +39,9 @@ const coustomPlaceOrder = async (
   try {
     const slicedQty = sliceOrderQuantity(qty, index);
 
-    console.log(41, slicedQty);
+    // console.log(41, slicedQty, accountDetails.access_token);
+    console.log("props: ", index, product, key, qty, price, order_type, transaction_type);
+
 
     for (let i = 0; i < slicedQty.length; i++) {
       let config = {
@@ -61,7 +63,7 @@ const coustomPlaceOrder = async (
           transaction_type,
           disclosed_quantity: 0,
           trigger_price,
-          is_amo: true,
+          is_amo: false,
         },
       };
       //check if the quantity exceeds the freeze quqntity for that perticular index? if it does, then slice the order

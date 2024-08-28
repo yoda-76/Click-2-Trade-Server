@@ -7,6 +7,7 @@ import { getStructuredOptionsData } from "./controller/misc.controller";
 import { cancelAllOrders, placeOrder } from "./controller/order.controller";
 import { getOrders } from "./controller/orderbook.controller";
 import { getPositions } from "./controller/positions.controller";
+import { squareoffAllPositions } from "./controller/squareoff.controller";
 
 
 
@@ -41,7 +42,7 @@ function routes(app: Express) {
   // child accounts
   app.post("/api/get-child-account-details",getChildAccounts)
   app.post("/api/update-multiplier", updateMultiplier);
-  app.post("/api/toggle-active",authenticateJWT ,toggleChildAccount );
+  app.post("/api/toggle-active" ,toggleChildAccount );
 
   // orders
   app.post("/api/get-orders", getOrders)
@@ -49,6 +50,10 @@ function routes(app: Express) {
   app.post("/api/cancel-all-order", cancelAllOrders);
 
   app.post("/api/get-positions", getPositions)
+
+
+  //square off
+  app.post("/api/square-off-all", squareoffAllPositions)
 
 }
 

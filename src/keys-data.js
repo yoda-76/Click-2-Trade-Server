@@ -120,7 +120,7 @@ axios({
                   CE:i,
                   PE:j
                 }
-            }else{
+            }else if(i.tradingsymbol.includes("NIFTY")){
               structuredData.NIFTY[`${i.expiry} : ${i.strike}`]={
                 CE:i,
                 PE:j

@@ -77,7 +77,6 @@ export const getChildAccounts = async (req: Request, res: Response) => {
         master_id,
       },
     });
-    // console.log(childAccounts);
     res.send(childAccounts);
   } catch (error) {
     console.log(error);

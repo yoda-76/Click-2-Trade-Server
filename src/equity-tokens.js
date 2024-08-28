@@ -179,6 +179,7 @@ const equitySymbols = ["AARTIIND",
 "VEDL",
 "VOLTAS",
 "WIPRO",
+"YESBANK",
 "ZYDUSLIFE"]
 
 module.exports=equitySymbols

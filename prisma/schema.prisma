@@ -17,6 +17,7 @@ model User {
   ph_number    Int?
   photo        String?
   account      MasterAccount[]
+  transaction  Transaction[]
 }
 
 model MasterAccount {
@@ -31,12 +32,6 @@ model MasterAccount {
   last_token_generated_at DateTime?
   added_at                DateTime       @default(now())
   pnl                     Int            @default(0)
-  mtm_target              Int            @default(100)
-  mtm_target_toggle       Boolean        @default(false)
-  mtm_loss                Int            @default(40)
-  mtm_loss_toggle         Boolean        @default(false)
-  trailing_sl_points      Int            @default(1)
-  tsl                     Int?
   user                    User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
   child_account           ChildAccount[]
   prefrences              Prefrences[]
@@ -61,16 +56,32 @@ model ChildAccount {
   mtm_loss                Int           @default(40)
   mtm_loss_toggle         Boolean       @default(false)
   master                  MasterAccount @relation(fields: [master_id], references: [id], onDelete: Cascade)
-  prefrences              Prefrences[]
 }
 
 model Prefrences {
-  id                String  @id @default(cuid())
-  master_account_id String? @unique
-  child_account_id  String? @unique
+  id                   String         @id @default(cuid())
+  account_id           String?        @unique
+  stoploss             Int            @default(100)
+  target               Int            @default(1000)
+  sl_increment         Int            @default(1)
+  target_increment     Int            @default(1)
+  trailing_point       Int            @default(1)
+  mtm_stoploss         Int            @default(100)
+  mtm_target           Int            @default(1000)
+  mtm_sl_increment     Int            @default(1)
+  mtm_target_increment Int            @default(1)
+  mtm_trailing_point   Int            @default(1)
+  master_account       MasterAccount? @relation(fields: [account_id], references: [id], onDelete: Cascade)
+}
 
-  master_account MasterAccount? @relation(fields: [master_account_id], references: [id], onDelete: Cascade)
-  child_account  ChildAccount?  @relation(fields: [child_account_id], references: [id], onDelete: Cascade)
+model Transaction {
+  id      String @id @default(cuid())
+  user_id String
+  ref_id  String @unique
+  amount Int
+  date DateTime @default(now())
+  status String
+  user    User   @relation(fields: [user_id], references: [id], onDelete: NoAction)
 }
 
 enum Broker {
