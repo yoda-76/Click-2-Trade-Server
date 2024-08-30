@@ -78,6 +78,7 @@ axios({
       "FINNIFTY": {},
       "NIFTY": {}
     }
+    const tokens=[]
 
     filteredJsonArray=jsonArray.filter(i=>{
       // if(i.name=="Nifty 50"){
@@ -94,14 +95,16 @@ axios({
       }else if(i.name==="Nifty Fin Service"){
         structuredData.INDEX.FINNIFTY=i
       }
-      if(i.instrument_type=="OPTIDX" || i.instrument_type=="OPTSTK") return i
-      else if(i.instrument_type=="EQUITY" && equitySymbols.includes(i.tradingsymbol)) {
-        equityKeys.push(i.instrument_key)
-        if(!structuredData.EQUITY) structuredData.EQUITY = {}
-        structuredData.EQUITY[i.tradingsymbol]=i
-      }
+      // if(i.instrument_type=="OPTIDX" || i.instrument_type=="OPTSTK") return i
+      if(i.instrument_type=="OPTIDX" && i.exchange=="NSE_FO") return i
+      // else if(i.instrument_type=="EQUITY" && equitySymbols.includes(i.tradingsymbol)) {
+      //   equityKeys.push(i.instrument_key)
+      //   if(!structuredData.EQUITY) structuredData.EQUITY = {}
+      //   structuredData.EQUITY[i.tradingsymbol]=i
+      // }
   })
   var otherTokens = []
+  const isNifty50Option = /^NIFTY\d{2}([A-Z]{3}|\d{3})\d{5}(CE|PE)$/;
   filteredJsonArray.map(i=>{
       // console.log(i)
       if(i.option_type==="CE"){
@@ -115,38 +118,45 @@ axios({
                   CE:i,
                   PE:j
                 }
+                tokens.push(i.instrument_key)
+              tokens.push(j.instrument_key)
               }else if(i.tradingsymbol.includes("FINNIFTY")){
                 structuredData.FINNIFTY[`${i.expiry} : ${i.strike}`]={
                   CE:i,
                   PE:j
                 }
-            }else if(i.tradingsymbol.includes("NIFTY")){
-              structuredData.NIFTY[`${i.expiry} : ${i.strike}`]={
-                CE:i,
-                PE:j
+                tokens.push(i.instrument_key)
+              tokens.push(j.instrument_key)
+              }else if(isNifty50Option.test(i.tradingsymbol)){
+                structuredData.NIFTY[`${i.expiry} : ${i.strike}`]={
+                  CE:i,
+                  PE:j
+                }
+                tokens.push(i.instrument_key)
+              tokens.push(j.instrument_key)
               }
-          }
-          const baseInstrument = extractBaseInstrumentSymbol(i.tradingsymbol)
-          if(equitySymbols.includes(baseInstrument)){
-            if(structuredData[baseInstrument]){
-              structuredData[baseInstrument][`${i.expiry} : ${i.strike}`]={
-                CE:i,
-                PE:j
-              } 
-              otherTokens.push(i.instrument_key)
-              otherTokens.push(j.instrument_key)
+              
+          // const baseInstrument = extractBaseInstrumentSymbol(i.tradingsymbol)
+          // if(equitySymbols.includes(baseInstrument)){
+          //   if(structuredData[baseInstrument]){
+          //     structuredData[baseInstrument][`${i.expiry} : ${i.strike}`]={
+          //       CE:i,
+          //       PE:j
+          //     } 
+          //     otherTokens.push(i.instrument_key)
+          //     otherTokens.push(j.instrument_key)
 
-            }else{
-              structuredData[baseInstrument]={}
-              structuredData[baseInstrument][`${i.expiry} : ${i.strike}`]={
-                CE:i,
-                PE:j
-              }
-              otherTokens.push(i.instrument_key)
-              otherTokens.push(j.instrument_key)
-              console.log(baseInstrument)
-            }
-          }
+          //   }else{
+          //     structuredData[baseInstrument]={}
+          //     structuredData[baseInstrument][`${i.expiry} : ${i.strike}`]={
+          //       CE:i,
+          //       PE:j
+          //     }
+          //     otherTokens.push(i.instrument_key)
+          //     otherTokens.push(j.instrument_key)
+          //     console.log(baseInstrument)
+            // }
+          // }
           
           }
         }
@@ -158,15 +168,13 @@ axios({
 
 
     
-    var jsonArray2=filteredJsonArray.map(i=>{
-        return i.instrument_key
-    })
+    var jsonArray2= [...equitySymbols,...tokens];
     for(const key in structuredData.INDEX){
       console.log(structuredData.INDEX[key].instrument_key);
       jsonArray2.unshift(structuredData.INDEX[key].instrument_key);
     }
     // jsonArray2.push(...otherTokens)
-    jsonArray2=[...equityKeys, ...jsonArray2]
+    // jsonArray2=[...equityKeys, ...jsonArray2]
     fs.writeFileSync(jsonFilePath2, JSON.stringify(jsonArray2, null, 2));
 
 

@@ -49,6 +49,8 @@ io.on("connection", (socket) => {
 });
 
 // ...........................................................................................
+// upstocks websocket market feed implementation
+//............................................................................................
 const fs = require("fs");
 const path = require("path");
 const folderPath = path.join(__dirname, "token_data");
@@ -120,7 +122,7 @@ const connectWebSocket = async (io, wsUrl) => {
           guid: "someguid",
           method: "sub",
           data: {
-            mode: "full",
+            mode: "ltpc", //try putting ltpc here
             instrumentKeys: keysData,
           },
         };
@@ -135,7 +137,7 @@ const connectWebSocket = async (io, wsUrl) => {
     ws.on("message", (data) => {
       const parsedData = JSON.stringify(decodeProfobuf(data)); // Decode the protobuf message on receiving it
       const parsedObject = JSON.parse(parsedData);
-      // console.log(parsedData);
+      console.log(parsedData);
       io.emit("market-data", parsedObject);
     });
 
@@ -170,7 +172,7 @@ const decodeProfobuf = (buffer) => {
   try {
     await initProtobuf(); // Initialize protobuf
     const wsUrl = await getMarketFeedUrl(); // Get the market feed URL
-
+    // const wsUrl = "wss://api.shoonya.com/NorenWSTP/";
     const ws = await connectWebSocket(io, wsUrl); // Connect to the WebSocket
   } catch (error) {
     console.error("An error occurred:", error);
