@@ -7,7 +7,7 @@ import { getStructuredOptionsData } from "./controller/misc.controller";
 import { cancelAllOrders, placeOrder } from "./controller/order.controller";
 import { getOrders } from "./controller/orderbook.controller";
 import { getPositions } from "./controller/positions.controller";
-import { squareoffAllPositions } from "./controller/squareoff.controller";
+import { squareoffAllPositions, squareoffSinglePositions } from "./controller/squareoff.controller";
 
 
 
@@ -54,6 +54,8 @@ function routes(app: Express) {
 
   //square off
   app.post("/api/square-off-all", squareoffAllPositions)
+  app.post("/api/square-off-single", squareoffSinglePositions)
+
 
 }
 

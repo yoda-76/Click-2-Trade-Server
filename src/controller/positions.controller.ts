@@ -41,9 +41,10 @@ export const getPositions = async (req: Request, res: Response) => {
   //   }
   // };
   const response=await axios(config)
+  const positions=response.data.data.filter((p: any) => p.product === "I");
   // const holdingsResponse=await axios(holdingsConfig)
   // console.log(response.data.data, holdingsResponse.data.data);
-  res.send(response.data.data);
+  res.send(positions);
   } catch (error) {
     console.log(error);
     res.status(500).send("access tokec error");

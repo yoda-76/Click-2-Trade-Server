@@ -5,9 +5,15 @@ const path = require('path');
 const zlib = require('zlib');
 const csvtojson = require('csvtojson');
 const  equitySymbols =  require('./equity-tokens');
+// const prisma = require('../lib/db');
 console.log(equitySymbols);
 const equityKeys= []
 const url = 'https://assets.upstox.com/market-quote/instruments/exchange/complete.csv.gz';
+
+const Redis = require("ioredis")
+// const client = new Redis("rediss://default:AeQcAAIjcDE0MjMyYTMzNDEwYzc0Y2ZiOWFkMzk1M2JlZTgwM2IwMHAxMA@helpful-polliwog-58396.upstash.io:6379");
+const client = new Redis("redis://localhost:6379");
+
 
 // Create the 'token_data' folder if it doesn't exist
 // const parentDirectory = path.resolve(__dirname, '..');
@@ -165,6 +171,9 @@ axios({
     })
     // console.log(structuredData)
     fs.writeFileSync(jsonFilePath3, JSON.stringify(structuredData, null, 2));
+    //save into db
+    client.set("structuredData", JSON.stringify(structuredData));
+    
 
 
     
@@ -176,6 +185,8 @@ axios({
     // jsonArray2.push(...otherTokens)
     // jsonArray2=[...equityKeys, ...jsonArray2]
     fs.writeFileSync(jsonFilePath2, JSON.stringify(jsonArray2, null, 2));
+    // save into db
+    client.set("instrument_keys", JSON.stringify(jsonArray2));
 
 
     fs.writeFileSync(jsonFilePath, JSON.stringify(filteredJsonArray, null, 2));

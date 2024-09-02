@@ -137,7 +137,7 @@ const connectWebSocket = async (io, wsUrl) => {
     ws.on("message", (data) => {
       const parsedData = JSON.stringify(decodeProfobuf(data)); // Decode the protobuf message on receiving it
       const parsedObject = JSON.parse(parsedData);
-      console.log(parsedData);
+      // console.log(parsedData);
       io.emit("market-data", parsedObject);
     });
 
