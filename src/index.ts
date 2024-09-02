@@ -51,28 +51,32 @@ io.on("connection", (socket) => {
 // ...........................................................................................
 // upstocks websocket market feed implementation
 //............................................................................................
-const fs = require("fs");
-const path = require("path");
-const folderPath = path.join(__dirname, "token_data");
-const jsonFilePath2 = path.join(folderPath, "instrument_keys_data.json");
-const upstoxFeedDataPath = path.join(folderPath, "upstoxFeed.json");
-let keysData;
-fs.readFile(jsonFilePath2, "utf8", (err, data) => {
-  if (err) {
-    console.error("Error reading the file:", err);
-    return;
-  }
+// const fs = require("fs");
+// const path = require("path");
+// const folderPath = path.join(__dirname, "token_data");
+// const jsonFilePath2 = path.join(folderPath, "instrument_keys_data.json");
+// const upstoxFeedDataPath = path.join(folderPath, "upstoxFeed.json");
+// let keysData;
+// fs.readFile(jsonFilePath2, "utf8", (err, data) => {
+//   if (err) {
+//     console.error("Error reading the file:", err);
+//     return;
+//   }
 
-  // Parse the JSON data
-  try {
-    const jsonData = JSON.parse(data);
-    keysData = jsonData;
-    // console.log("JSON data:", jsonData);
-  } catch (parseError) {
-    console.error("Error parsing JSON:", parseError);
-  }
-});
+//   // Parse the JSON data
+//   try {
+//     const jsonData = JSON.parse(data);
+//     keysData = jsonData;
+//     // console.log("JSON data:", jsonData);
+//   } catch (parseError) {
+//     console.error("Error parsing JSON:", parseError);
+//   }
+// });
 // Import required modules
+import Redis from "ioredis";
+const client = new Redis("redis://localhost:6379");
+let keysData;
+
 var UpstoxClient = require("upstox-js-sdk");
 const WebSocket = require("ws").WebSocket;
 const protobuf = require("protobufjs");
@@ -112,10 +116,11 @@ const connectWebSocket = async (io, wsUrl) => {
     });
 
     // WebSocket event handlers
-    ws.on("open", () => {
+    ws.on("open", async() => {
       console.log("connected");
       resolve(ws); // Resolve the promise once connected
-
+      const data=await client.get("instrument_keys")
+      keysData=JSON.parse(data);
       // Set a timeout to send a subscription message after 1 second
       setTimeout(() => {
         const data = {
@@ -137,7 +142,7 @@ const connectWebSocket = async (io, wsUrl) => {
     ws.on("message", (data) => {
       const parsedData = JSON.stringify(decodeProfobuf(data)); // Decode the protobuf message on receiving it
       const parsedObject = JSON.parse(parsedData);
-      // console.log(parsedData);
+      console.log(parsedData);
       io.emit("market-data", parsedObject);
     });
 
