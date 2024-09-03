@@ -121,6 +121,7 @@ const connectWebSocket = async (io, wsUrl) => {
       resolve(ws); // Resolve the promise once connected
       const data=await client.get("instrument_keys")
       keysData=JSON.parse(data);
+      console.log(keysData);
       // Set a timeout to send a subscription message after 1 second
       setTimeout(() => {
         const data = {
