@@ -78,7 +78,7 @@ export const GetAccessToken = async (
         code: authcode,
         client_id: userData.key,
         client_secret: userData.secret,
-        redirect_uri: "http://localhost:3000/auth",
+        redirect_uri: process.env.REDIRECT_URL,
         grant_type: "authorization_code",
       }),
       {
