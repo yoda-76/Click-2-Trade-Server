@@ -15,7 +15,6 @@ const client = new Redis("redis://localhost:6379");
 
 
 // Create the 'token_data' folder if it doesn't exist
-// const parentDirectory = path.resolve(__dirname, '..');
 const folderPath = path.join(__dirname, 'token_data');
 if (!fs.existsSync(folderPath)) {
   fs.mkdirSync(folderPath);
