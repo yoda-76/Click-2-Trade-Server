@@ -114,7 +114,7 @@ const connectWebSocket = async (io, wsUrl) => {
     const ws = new WebSocket(wsUrl, {
       headers: {
         "Api-Version": apiVersion,
-        Authorization: "Bearer " + socketAccessToken,
+        Authorization: "Bearer " + OAUTH2.accessToken,
       },
       followRedirects: true,
     });
@@ -181,7 +181,7 @@ const decodeProfobuf = (buffer) => {
 export const initializeMarketFeed = async () => {
 
 
-  
+
   try {
     await initProtobuf(); // Initialize protobuf
     const wsUrl = await getMarketFeedUrl(); // Get the market feed URL
