@@ -11,7 +11,6 @@ const equityKeys= []
 const url = 'https://assets.upstox.com/market-quote/instruments/exchange/complete.csv.gz';
 
 const Redis = require("ioredis")
-// const client = new Redis("rediss://default:AeQcAAIjcDE0MjMyYTMzNDEwYzc0Y2ZiOWFkMzk1M2JlZTgwM2IwMHAxMA@helpful-polliwog-58396.upstash.io:6379");
 const client = new Redis("redis://localhost:6379");
 
 
@@ -172,7 +171,9 @@ axios({
     // console.log(structuredData)
     fs.writeFileSync(jsonFilePath3, JSON.stringify(structuredData, null, 2));
     //save into db
-    client.set("structuredData", JSON.stringify(structuredData));
+    client.set("structuredData", JSON.stringify(structuredData)).then(() => {
+      console.log("structuredData saved successfully");
+    })
     
 
 
@@ -186,7 +187,9 @@ axios({
     // jsonArray2=[...equityKeys, ...jsonArray2]
     fs.writeFileSync(jsonFilePath2, JSON.stringify(jsonArray2, null, 2));
     // save into db
-    client.set("instrument_keys", JSON.stringify(jsonArray2));
+    client.set("instrument_keys", JSON.stringify(jsonArray2)).then(() => {
+      console.log("instrument_keys saved successfully");
+    })
 
 
     fs.writeFileSync(jsonFilePath, JSON.stringify(filteredJsonArray, null, 2));

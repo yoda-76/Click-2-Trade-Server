@@ -5,7 +5,13 @@ import cookieParser from "cookie-parser";
 import { Server } from "socket.io";
 import { createServer } from "node:http";
 
-const socketAccessToken = process.env.SOCKET_ACCESS_TOKEN
+import Redis from "ioredis";
+const client = new Redis("redis://localhost:6379");
+
+
+// const socketAccessToken = process.env.SOCKET_ACCESS_TOKEN
+let socketAccessToken;
+
 
 // import deserializeUser from "./middleware/deserializeUser";
 
@@ -73,8 +79,6 @@ io.on("connection", (socket) => {
 //   }
 // });
 // Import required modules
-import Redis from "ioredis";
-const client = new Redis("redis://localhost:6379");
 let keysData;
 
 var UpstoxClient = require("upstox-js-sdk");
@@ -86,13 +90,13 @@ let protobufRoot = null;
 let defaultClient = UpstoxClient.ApiClient.instance;
 let apiVersion = "2.0";
 let OAUTH2 = defaultClient.authentications["OAUTH2"];
-OAUTH2.accessToken = socketAccessToken; // Replace "ACCESS_TOKEN" with your actual token
 
 // Function to authorize the market data feed
 const getMarketFeedUrl = async () => {
+  socketAccessToken = await client.get("SOCKET_ACCESS_TOKEN")
+  OAUTH2.accessToken = socketAccessToken;
   return new Promise((resolve, reject) => {
     let apiInstance = new UpstoxClient.WebsocketApi(); // Create new Websocket API instance
-
     // Call the getMarketDataFeedAuthorize function from the API
     apiInstance.getMarketDataFeedAuthorize(
       apiVersion,
@@ -110,7 +114,7 @@ const connectWebSocket = async (io, wsUrl) => {
     const ws = new WebSocket(wsUrl, {
       headers: {
         "Api-Version": apiVersion,
-        Authorization: "Bearer " + OAUTH2.accessToken,
+        Authorization: "Bearer " + socketAccessToken,
       },
       followRedirects: true,
     });
@@ -121,7 +125,7 @@ const connectWebSocket = async (io, wsUrl) => {
       resolve(ws); // Resolve the promise once connected
       const data=await client.get("instrument_keys")
       keysData=JSON.parse(data);
-      console.log(keysData);
+      // console.log(keysData);
       // Set a timeout to send a subscription message after 1 second
       setTimeout(() => {
         const data = {
@@ -143,7 +147,7 @@ const connectWebSocket = async (io, wsUrl) => {
     ws.on("message", (data) => {
       const parsedData = JSON.stringify(decodeProfobuf(data)); // Decode the protobuf message on receiving it
       const parsedObject = JSON.parse(parsedData);
-      console.log(parsedData);
+      // console.log(parsedData);
       io.emit("market-data", parsedObject);
     });
 
@@ -174,13 +178,17 @@ const decodeProfobuf = (buffer) => {
 };
 
 // Initialize the protobuf part and establish the WebSocket connection
-(async () => {
+export const initializeMarketFeed = async () => {
+
+
+  
   try {
     await initProtobuf(); // Initialize protobuf
     const wsUrl = await getMarketFeedUrl(); // Get the market feed URL
-    // const wsUrl = "wss://api.shoonya.com/NorenWSTP/";
-    const ws = await connectWebSocket(io, wsUrl); // Connect to the WebSocket
+    await connectWebSocket(io, wsUrl); // Connect to the WebSocket
+    console.log("web socket connected");
   } catch (error) {
     console.error("An error occurred:", error);
   }
-})();
+}
+initializeMarketFeed()

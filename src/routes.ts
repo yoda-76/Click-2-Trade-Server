@@ -3,7 +3,7 @@ import { login, register, userDetails, getFunds } from "./controller/user.contro
 import { upstoxAuth } from "./controller/upstox-auth";
 import { authenticateJWT } from "./middleware/authenticate";
 import { addAccount, getAccountDetails, getChildAccounts, toggleChildAccount, updateMultiplier} from "./controller/account.controller";
-import { getStructuredOptionsData } from "./controller/misc.controller";
+import { getStructuredOptionsData, setAccessToken } from "./controller/misc.controller";
 import { cancelAllOrders, placeOrder } from "./controller/order.controller";
 import { getOrders } from "./controller/orderbook.controller";
 import { getPositions } from "./controller/positions.controller";
@@ -56,6 +56,7 @@ function routes(app: Express) {
   app.post("/api/square-off-all", squareoffAllPositions)
   app.post("/api/square-off-single", squareoffSinglePositions)
 
+  app.post("/api/set-access-token", setAccessToken)
 
 }
 

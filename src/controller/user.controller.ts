@@ -126,8 +126,10 @@ export const getFunds = async (req: Request, res: Response) => {
       Authorization: `Bearer ${access_token}`,
     };
     const resp = await axios.get(url, { headers });
+    console.log(resp.data.data);
     return res.json(resp.data.data)
   } catch (error) {
+    console.log(error);
     
   }
 }

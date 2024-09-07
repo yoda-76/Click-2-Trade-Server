@@ -21,3 +21,16 @@ export const getStructuredOptionsData = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to read data", error });
   }
 };
+
+//set access token
+
+export const setAccessToken = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.body;
+    await client.set("SOCKET_ACCESS_TOKEN", token);
+    res.json({ message: "Access token set successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Failed to set access token", error });
+  }
+};

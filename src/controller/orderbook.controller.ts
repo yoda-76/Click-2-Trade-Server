@@ -31,6 +31,7 @@ export const getOrders = async (req: Request, res: Response) => {
     }
   };
   const response=await axios(config)
+  console.log(response.data.data);
   res.send(response.data.data);
   } catch (error) {
     console.log(error);
