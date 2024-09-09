@@ -177,7 +177,7 @@ axios({
 
 
     
-    var jsonArray2= [...equitySymbols,...tokens];
+    var jsonArray2= ["NSE_EQ|INE528G01035",...equitySymbols,...tokens];
     for(const key in structuredData.INDEX){
       console.log(structuredData.INDEX[key].instrument_key);
       jsonArray2.unshift(structuredData.INDEX[key].instrument_key);
