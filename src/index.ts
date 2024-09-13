@@ -51,51 +51,52 @@ app.use(cookieParser());
 //   next();
 // });
 
-/////////////////////
-// const allowedOrigins = ['http://localhost:5173', 'https://www.oidelta.com/', 'https://oidelta.com/']; // Define your allowed origins
+///////////////////
+const allowedOrigins = ['http://localhost:5173', 'https://www.oidelta.com', 'https://oidelta.com']; // Define your allowed origins
 // const allowedOrigins = ['https://www.oidelta.com/']; // Define your allowed origins
 
 
-// app.use((req, res, next) => {
-//   const origin = req.headers.origin; // Get the origin of the incoming request
+app.use((req, res, next) => {
+  const origin = req.headers.origin; // Get the origin of the incoming request
   
-//   // Check if the request's origin is in the list of allowed origins
-//   if (allowedOrigins.includes(origin)) {
-//     res.header("Access-Control-Allow-Origin", origin); // Set the Access-Control-Allow-Origin to the incoming origin
-//   }
+  // Check if the request's origin is in the list of allowed origins
+  if (allowedOrigins.includes(origin)) {
+    console.log("origin matches");
+    res.header("Access-Control-Allow-Origin", origin); // Set the Access-Control-Allow-Origin to the incoming origin
+  }
   
-//   res.header(
-//     "Access-Control-Allow-Headers",
-//     "Origin, X-Requested-With, Content-Type, Accept, userId, agentid, adminid, skey"
-//   );
-//   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"); // Specify allowed methods
-//   res.header("Access-Control-Allow-Credentials", "true"); // Allow credentials (cookies)
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, userId, agentid, adminid, skey"
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"); // Specify allowed methods
+  res.header("Access-Control-Allow-Credentials", "true"); // Allow credentials (cookies)
   
-//   // Handle preflight requests
-//   if (req.method === 'OPTIONS') {
-//     return res.sendStatus(200); // Quickly respond to preflight checks
-//   }
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200); // Quickly respond to preflight checks
+  }
 
-//   next();
-// });
+  next();
+});
 /////////////////
 
 // app.use(deserializeUser);
 
-const allowedOrigins = ['https://www.oidelta.com', 'http://localhost:5173']; 
+// const allowedOrigins = ['https://www.oidelta.com', 'http://localhost:5173']; 
 
-app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl requests)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true, // Allow cookies to be sent with requests
-}));
+// app.use(cors({
+//   origin: function (origin, callback) {
+//     // Allow requests with no origin (like mobile apps, curl requests)
+//     if (!origin) return callback(null, true);
+//     if (allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   credentials: true, // Allow cookies to be sent with requests
+// }));
 
 
 server.listen(port, async () => {
