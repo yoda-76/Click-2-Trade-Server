@@ -53,6 +53,56 @@ export const getPositions = async (req: Request, res: Response) => {
 
 
 
+////////////////////////////////v2/////////////////////////////
+
+export const getPositions_v2 = async (req: Request, res: Response) => {
+  const { account_id, account_type }: { account_id: string, account_type: string} = req.body;
+  console.log(account_id, account_type);
+  if(!account_id || !account_type) return;
+  try {
+    //fetch access token
+    console.log(account_id, account_type);
+    let user: ChildAccount | MasterAccount | null = null
+    if(account_type==="MASTER"){
+        user = await prisma.masterAccount.findUnique({ where: { u_id: account_id } });
+    }else if(account_type==="CHILD"){
+        user = await prisma.childAccount.findUnique({ where: { u_id: account_id } });
+    }else{
+        res.status(401).send("Invalid account type");
+    }
+
+    console.log(user);
+    const accessToken=user.access_token;
+  let config = {
+    method: 'get',
+    maxBodyLength: Infinity,
+    url: 'https://api.upstox.com/v2/portfolio/short-term-positions',
+    headers: { 
+      'Accept': 'application/json',
+      'Api-Version': '2.0',
+      'Authorization': `Bearer ${accessToken}`,
+    }
+  };
+  // let holdingsConfig = {
+  //   method: 'get',
+  //   maxBodyLength: Infinity,
+  //   url: 'https://api.upstox.com/v2/portfolio/long-term-holdings',
+  //   headers: { 
+  //     'Accept': 'application/json',
+  //     'Api-Version': '2.0',
+  //     'Authorization': `Bearer ${accessToken}`,
+  //   }
+  // };
+  const response=await axios(config)
+  const positions=response.data.data.filter((p: any) => p.product === "I");
+  // const holdingsResponse=await axios(holdingsConfig)
+  // console.log(response.data.data, holdingsResponse.data.data);
+  res.send(positions);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("access tokec error");
+  }
+};
 
 
 

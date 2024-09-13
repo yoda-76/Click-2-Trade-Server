@@ -10,6 +10,7 @@ export const addAccount = async (req: Request, res: Response) => {
     broker_id,
     type,
     master,
+    u_id
   }: {
     name_tag: string;
     email: string;
@@ -19,6 +20,7 @@ export const addAccount = async (req: Request, res: Response) => {
     broker_id: string;
     type: string;
     master: string;
+    u_id:string
   } = req.body;
 
   try {
@@ -33,6 +35,7 @@ export const addAccount = async (req: Request, res: Response) => {
           secret,
           broker,
           broker_id,
+          u_id
         },
       });
     } else {
@@ -44,6 +47,7 @@ export const addAccount = async (req: Request, res: Response) => {
           secret,
           broker,
           broker_id,
+          u_id
         },
       });
     }
@@ -112,6 +116,156 @@ export const toggleChildAccount = async (req: Request, res: Response) => {
       },
     });
     res.send(account);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+/////////////////////////////v2////////////////////////
+
+export const addAccount_v2 = async (req: Request, res: Response) => {
+  const {
+    name_tag,
+    email,
+    key,
+    secret,
+    broker,
+    broker_id,
+    type,
+    master,
+    u_id
+  }: {
+    name_tag: string;
+    email: string;
+    key: string;
+    secret: string;
+    broker: Broker;
+    broker_id: string;
+    type: string;
+    master: string;
+    u_id:string
+  } = req.body;
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    const user_id = user.id;
+    if (type === "MASTER") {
+      await prisma.masterAccount.create({
+        data: {
+          user_id,
+          name_tag,
+          key,
+          secret,
+          broker,
+          broker_id,
+          u_id
+        },
+      });
+    } else {
+      const masterAccount = await prisma.masterAccount.findUnique({
+        where: {
+          u_id:master,
+        },
+      });
+      await prisma.childAccount.create({
+        data: {
+          master_id: masterAccount.id,
+          name_tag,
+          key,
+          secret,
+          broker,
+          broker_id,
+          u_id
+        },
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+
+  res.send("account has been added");
+};
+
+export const getAccountDetails_v2 = async (req: Request, res: Response) => {
+  const u_id = req.body.master_u_id;
+  try {
+    const account = await prisma.masterAccount.findUnique({
+      where: {
+        u_id,
+      },
+    });
+    const payload = {
+      u_id:account.u_id
+    }
+    res.send(payload);
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const getChildAccounts_v2 = async (req: Request, res: Response) => {
+  const u_id = req.body.master_u_id;
+  // console.log(req.body);
+  if (!u_id) return;
+
+  const masterAccount = await prisma.masterAccount.findUnique({
+    where: {
+      u_id,
+    },
+  });
+  try {
+    const childAccounts = await prisma.childAccount.findMany({
+      where: {
+        master_id:masterAccount.id,
+      },
+    });
+    const payload = childAccounts.map(c=>({
+      u_id:c.u_id,
+      broker:c.broker,
+      broker_id: c.broker_id,
+      name_tag: c.name_tag,
+      last_token_generated_at: c.last_token_generated_at,
+      pnl:c.pnl,
+      key:c.key,
+      active:c.active,
+      multiplier:c.multiplier
+    }))
+    res.send(payload);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const updateMultiplier_v2 = async (req: Request, res: Response) => {
+  const { child_u_id, multiplier } = req.body;
+  try {
+    const account = await prisma.childAccount.update({
+      where: {
+        u_id: child_u_id,
+      },
+      data: {
+        multiplier,
+      },
+    });
+    res.send("updated multiplier");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const toggleChildAccount_v2 = async (req: Request, res: Response) => {
+  const { child_u_id, status } = req.body;
+  console.log("body",req.body);
+  try {
+    const account = await prisma.childAccount.update({
+      where: {
+        u_id: child_u_id,
+      },
+      data: {
+        active: status,
+      },
+    });
+    res.send(`child account state changed to : ${status}`);
   } catch (error) {
     console.log(error);
   }

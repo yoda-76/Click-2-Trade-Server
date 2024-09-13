@@ -181,6 +181,20 @@ const cancelOrder = async (order_id: string, access_token: string) => {
   }
 };
 
+export const cancelOrderById = async (req: Request, res: Response) => {
+  const { order_id, account_id }: { order_id: string; account_id: string } =
+    req.body;
+  try {
+    const account = await prisma.masterAccount.findUnique({
+      where: { id: account_id },
+    });
+    const masterAccessToken = account.access_token;
+    const response = await cancelOrder(order_id, masterAccessToken);
+    return res.json(response);
+  } catch (error) {
+    console.log(error);
+  }
+}
 export const cancelAllOrders = async (req: Request, res: Response) => {
   const { account_id }: { account_id: string } = req.body;
   try {
@@ -225,6 +239,156 @@ export const cancelAllOrders = async (req: Request, res: Response) => {
       const orders = response.data.data;
       for (let i = 0; i < orders.length; i++) {
         const response = await cancelOrder(
+          orders[i].order_id,
+          childAccessToken
+        );
+      }
+    });
+    //get order book of master and all active childs
+
+    return res.json("Order Canceled Successfully");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+
+
+
+////////////////////////////v2////////////////////////
+
+
+export const placeOrder_v2 = async (req: Request, res: Response) => {
+  const {
+    master_u_id,
+    instrument_token,
+    quantity,
+    product,
+    order_type,
+    transaction_type,
+    index,
+    trigger_price,
+    price,
+  }: {
+    master_u_id: string;
+    instrument_token: number;
+    quantity: number;
+    product: string;
+    order_type: string;
+    transaction_type: string;
+    index: string;
+    trigger_price: number;
+    price: number;
+  } = req.body;
+  try {
+    console.log(req.body);
+    const account = await prisma.masterAccount.findUnique({
+      where: { u_id: master_u_id },
+    });
+
+
+    const childs = await prisma.childAccount.findMany({
+      where: { master_id: account.id },
+    });
+    const filteredChild = childs.filter((child) => child.active);
+    const response = await coustomPlaceOrder(
+      index,
+      order_type,
+      product,
+      instrument_token,
+      account,
+      quantity,
+      transaction_type,
+      trigger_price,
+      price
+    );
+    console.log(response);
+    if (response) {
+      //place same order in all child accounts
+      for (let i = 0; i < filteredChild.length; i++) {
+        const response = await coustomPlaceOrder(
+          index,
+          order_type,
+          product,
+          instrument_token,
+          filteredChild[i],
+          quantity * filteredChild[i].multiplier,
+          transaction_type,
+          trigger_price,
+          price
+        );
+        console.log(response);
+      }
+
+      return res.json("Order Placed Successfully");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+
+export const cancelOrderById_v2 = async (req: Request, res: Response) => {
+  const { order_id, master_u_id }: { order_id: string; master_u_id: string } =
+    req.body;
+  try {
+    const account = await prisma.masterAccount.findUnique({
+      where: { u_id: master_u_id },
+    });
+    const masterAccessToken = account.access_token;
+    const response = await cancelOrder(order_id, masterAccessToken);
+    return res.json(response);
+  } catch (error) {
+    console.log(error);
+  }
+}
+export const cancelAllOrders_v2 = async (req: Request, res: Response) => {
+  const u_id = req.body.master_u_id;
+  console.log("body",req.body);
+  try {
+    const account = await prisma.masterAccount.findUnique({
+      where: { u_id },
+    });
+    const masterAccessToken = account.access_token;
+    const childs = await prisma.childAccount.findMany({
+      where: { master_id: account.id },
+    });
+    const filteredChild = childs.filter((child) => child.active);
+
+    let config = {
+      method: "get",
+      maxBodyLength: Infinity,
+      url: "https://api.upstox.com/v2/order/retrieve-all",
+      headers: {
+        Accept: "application/json",
+        "Api-Version": "2.0",
+        Authorization: `Bearer ${masterAccessToken}`,
+      },
+    };
+    const response = await axios(config);
+    const orders = response.data.data;
+    for (let i = 0; i < orders.length; i++) {
+      if(orders[i].status=="open" || orders[i].status=="pending") await cancelOrder(orders[i].order_id, masterAccessToken);
+    }
+
+    const childAccessTokens = filteredChild.map((child) => child.access_token);  //we can do it with a single map function [filter and fetch access token]
+    childAccessTokens.map(async (childAccessToken) => {
+      config = {
+        method: "get",
+        maxBodyLength: Infinity,
+        url: "https://api.upstox.com/v2/order/retrieve-all",
+        headers: {
+          Accept: "application/json",
+          "Api-Version": "2.0",
+          Authorization: `Bearer ${childAccessToken}`,
+        },
+      };
+      const response = await axios(config);
+      const orders = response.data.data;
+      for (let i = 0; i < orders.length; i++) {
+        if(orders[i].status=="open" || orders[i].status=="pending") await cancelOrder(
           orders[i].order_id,
           childAccessToken
         );

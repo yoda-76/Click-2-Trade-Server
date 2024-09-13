@@ -22,12 +22,13 @@
     "http": "^0.0.1-security",
     "ioredis": "^5.4.1",
     "jsonwebtoken": "^9.0.2",
+    "redis-server": "^1.2.2",
     "socket.io": "^4.7.5",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "upstox-js-sdk": "^2.4.0",
-    "ws": "^8.18.0",
-    "redis-server": "^1.2.2"
+    "useragent": "^2.3.0",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.7",

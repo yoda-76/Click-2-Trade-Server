@@ -54,11 +54,11 @@ export const GetAccessToken = async (
     let userData: MasterAccount | ChildAccount;
     if (acc.type === "CHILD") {
       userData = await prisma.childAccount.findUnique({
-        where: { id: acc.id },
+        where: { u_id: acc.id },
       });
     } else if (acc.type === "MASTER") {
       userData = await prisma.masterAccount.findUnique({
-        where: { id: acc.id },
+        where: { u_id: acc.id },
       });
     } else {
       throw new ApiError(
@@ -96,7 +96,7 @@ export const GetAccessToken = async (
       let accountData: MasterAccount | ChildAccount;
       if (acc.type === "MASTER") {
         accountData = await prisma.masterAccount.update({
-          where: { id: acc.id },
+          where: { u_id: acc.id },
           data: {
             access_token,
             last_token_generated_at: currentdate.toISOString(),
@@ -104,7 +104,7 @@ export const GetAccessToken = async (
         });
       } else {
         accountData = await prisma.childAccount.update({
-          where: { id: acc.id },
+          where: { u_id: acc.id },
           data: {
             access_token,
             last_token_generated_at: currentdate.toISOString(),

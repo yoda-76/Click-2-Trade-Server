@@ -16,13 +16,28 @@ model User {
   access_token String?
   ph_number    Int?
   photo        String?
+  verified     Boolean         @default(false)
   account      MasterAccount[]
   transaction  Transaction[]
+  session      Session[]
+}
+
+model Session {
+  id             String    @id @default(cuid())
+  user_id        String    @unique
+  is_expired     Boolean   @default(false)
+  started_at     DateTime  @default(now())
+  ended_at       DateTime?
+  last_active_at DateTime @default(now())
+  access_token String
+  refresh_token  String
+  user           User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
 model MasterAccount {
   id                      String         @id @default(cuid())
   user_id                 String
+  u_id                    String         @unique
   broker                  Broker
   broker_id               String         @unique
   name_tag                String
@@ -39,6 +54,7 @@ model MasterAccount {
 
 model ChildAccount {
   id                      String        @id @default(cuid())
+  u_id                    String        @unique
   master_id               String
   broker                  Broker
   broker_id               String        @unique
@@ -75,13 +91,13 @@ model Prefrences {
 }
 
 model Transaction {
-  id      String @id @default(cuid())
+  id      String   @id @default(cuid())
   user_id String
-  ref_id  String @unique
-  amount Int
-  date DateTime @default(now())
-  status String
-  user    User   @relation(fields: [user_id], references: [id], onDelete: NoAction)
+  ref_id  String   @unique
+  amount  Int
+  date    DateTime @default(now())
+  status  String
+  user    User     @relation(fields: [user_id], references: [id], onDelete: NoAction)
 }
 
 enum Broker {
