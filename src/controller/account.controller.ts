@@ -1,5 +1,6 @@
 import { Broker } from "@prisma/client";
 import { Express, Request, Response } from "express";
+import { ChildProcess } from "node:child_process";
 export const addAccount = async (req: Request, res: Response) => {
   const {
     name_tag,
@@ -204,8 +205,10 @@ export const getAccountDetails_v2 = async (req: Request, res: Response) => {
   }
 };
 export const getChildAccounts_v2 = async (req: Request, res: Response) => {
+  
   const u_id = req.body.master_u_id;
-  // console.log(req.body);
+
+  console.log(req.body);
   if (!u_id) return;
 
   const masterAccount = await prisma.masterAccount.findUnique({
@@ -230,6 +233,7 @@ export const getChildAccounts_v2 = async (req: Request, res: Response) => {
       active:c.active,
       multiplier:c.multiplier
     }))
+    console.log(payload);
     res.send(payload);
   } catch (error) {
     console.log(error);

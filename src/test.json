@@ -1,21 +1,13 @@
-// {
-//   "exchange": "NFO",
-//   "product": "D",
-//   "tradingsymbol": "BANKNIFTY24JUN51400CE",
-//   "trading_symbol": "BANKNIFTY24JUN51400CE",
-//   "instrument_token": "NSE_FO|56054",
-//   "order_type": "MARKET",
-//   "transaction_type": "BUY",
-//   "quantity": 90,
-//   "exchange_order_id": "1500000111357778",
-//   "order_id": "240621000425650",
-//   "exchange_timestamp": "2024-06-21 17:45:53",
-//   "average_price": 417.4,
-//   "trade_id": "333004095",
-//   "order_ref_id": "274508499082553",
-//   "order_timestamp": "2024-06-21 12:15:53"
-// }
-
-
-// 12036
-// 05097
+{
+  "quantity": 75,
+  "product": "I",
+  "validity": "DAY",
+  "price": 0,
+  "tag": "string",
+  "instrument_token": "NSE_FO|67670",
+  "order_type": "MARKET",
+  "transaction_type": "BUY",
+  "disclosed_quantity": 0,
+  "trigger_price": 0,
+  "is_amo": false
+}

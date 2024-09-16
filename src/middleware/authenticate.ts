@@ -5,7 +5,7 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
     const {atc, rtc} = req.cookies 
     // console.log("cookies: ",token);;
     // const token =req.body.token
-    console.log(atc);
+    console.log("accesstoken",atc);
     if (!atc) {
         return res.status(401).send('Access denied. No token or invalid token provided.');
     }

@@ -13,9 +13,9 @@ export const getStructuredOptionsData = async (req: Request, res: Response) => {
     // console.log("parsed resp", JSON.parse(resp));
     // const filePath = join(__dirname, "../token_data/structured_options_data.json");
     // const data = await fs.readFile(filePath, "utf-8");
-    // const jsonData = JSON.parse(data);
-    // console.log("object");
-    res.json({ message: "ok", data: JSON.parse(resp) });
+    const jsonData = JSON.parse(resp);
+    // console.log("object",jsonData);
+    res.json({ message: "ok", data: jsonData });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Failed to read data", error });
