@@ -61,7 +61,7 @@ app.use((req, res, next) => {
   
   // Check if the request's origin is in the list of allowed origins
   if (allowedOrigins.includes(origin)) {
-    console.log("origin matches",req.body);
+    // console.log("origin matches",req.body);
     res.header("Access-Control-Allow-Origin", origin); // Set the Access-Control-Allow-Origin to the incoming origin
   }
   

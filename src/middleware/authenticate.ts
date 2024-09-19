@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { decode } from 'punycode';
 
 export const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
     const {atc, rtc} = req.cookies 
     // console.log("cookies: ",token);;
     // const token =req.body.token
-    console.log("accesstoken",atc);
+    // console.log("accesstoken",atc);
     if (!atc) {
         return res.status(401).send('Access denied. No token or invalid token provided.');
     }
@@ -35,7 +36,8 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
           return decoded
         });
         // console.log(decoded);
-        res.locals.user = decoded;        
+        res.locals.user = decoded;    
+        console.log("222", decoded);    
         next();
     } catch (err) {
         res.status(400).send('Invalid token');

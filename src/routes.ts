@@ -9,6 +9,7 @@ import { cancelAllOrders, cancelAllOrders_v2, cancelOrderById, cancelOrderById_v
 import { getOrders, getOrders_v2 } from "./controller/orderbook.controller";
 import { getPositions, getPositions_v2 } from "./controller/positions.controller";
 import { squareoffAllPositions, squareoffAllPositions_v2, squareoffSinglePositions } from "./controller/squareoff.controller";
+import { getPrefrences, updatePrefrenceSL, updatePrefrenceTarget } from "./controller/prefrences.controller";
 
 
 
@@ -61,6 +62,10 @@ function routes(app: Express) {
 
   app.post("/api/set-access-token", setAccessToken)
 
+  //predefined sl and target
+  app.post("/api/update-prefrences-sl", authenticateJWT, updatePrefrenceSL)
+  app.post("/api/update-prefrences-target", authenticateJWT, updatePrefrenceTarget)
+  app.post("/api/get-prefrences", authenticateJWT, getPrefrences)
 
 
   //testing cookies
