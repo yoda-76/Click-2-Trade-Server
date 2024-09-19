@@ -152,7 +152,7 @@ export const addAccount_v2 = async (req: Request, res: Response) => {
     const user = await prisma.user.findUnique({ where: { email } });
     const user_id = user.id;
     if (type === "MASTER") {
-      await prisma.masterAccount.create({
+      const masterAccount=await prisma.masterAccount.create({
         data: {
           user_id,
           name_tag,
@@ -163,6 +163,11 @@ export const addAccount_v2 = async (req: Request, res: Response) => {
           u_id
         },
       });
+      const prefrences = await prisma.prefrences.create({
+        data: {
+          account_id: masterAccount.id
+        },
+      })
     } else {
       const masterAccount = await prisma.masterAccount.findUnique({
         where: {
